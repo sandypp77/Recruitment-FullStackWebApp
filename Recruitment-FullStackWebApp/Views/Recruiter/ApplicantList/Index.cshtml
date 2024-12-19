@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "Applicants for Job";
+}
+@model ApplicantsAppliedViewModel;
+
+<div class="container mt-5">
+    <h2>@Model.Job.Title - Applicants</h2>
+
+    <div class="card mb-3">
+        <div class="card-header">
+            <h4>Job Details</h4>
+        </div>
+        <div class="card-body">
+            <p><strong>Job Title:</strong> @Model.Job.Title</p>
+            <p><strong>Job Description:</strong> @Model.Job.Description</p>
+        </div>
+    </div>
+
+    <h3>Applicants</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Application Date</th>
+                <th>Status</th>
+                <th>Action</th>
+                <th>Resume</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var applicant in Model.Applicants)
+            {
+                <tr>
+                    <td>@applicant.ApplicantName</td>
+                    <td>@applicant.ApplicantPhone</td>
+                    <td>
+                        @(applicant.ApplicationDate.HasValue ? applicant.ApplicationDate.Value.ToString("dd MMM yyyy") : "N/A")
+                    </td>
+                    <td id="status-@applicant.ApplicantId">
+                        @if (applicant.Status == "0")
+                        {
+                            @:In Review
+                        }
+                        else if (applicant.Status == "1")
+                        {
+                            @:Rejected
+                        }
+                        else if (applicant.Status == "2")
+                        {
+                            @:Accepted
+                        }
+                    </td>
+                    <td>
+                        <a href="/resume/@applicant.ApplicantId" target="_blank" class="btn btn-info">View Resume</a>
+                    </td>
+                    <td>
+                        <button class="btn btn-success update-status" data-id="@applicant.JobApplicationId" data-status="2">Accept</button>
+                        <button class="btn btn-danger update-status" data-id="@applicant.JobApplicationId" data-status="1">Reject</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="pagination-controls mt-4">
+        @if (Model.HasPreviousPage)
+        {
+            <a asp-action="JobWithApplicantsIndex" asp-route-pageNumber="@(Model.PageNumber - 1)" class="btn btn-secondary">
+                Previous
+            </a>
+        }
+
+        <span>Page @Model.PageNumber of @Model.TotalPages</span>
+
+        @if (Model.HasNextPage)
+        {
+            <a asp-action="JobWithApplicantsIndex" asp-route-pageNumber="@(Model.PageNumber + 1)" class="btn btn-secondary">
+                Next
+            </a>
+        }
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+<script type="text/javascript">
+    document.querySelectorAll('.update-status').forEach(button => {
+        button.addEventListener('click', function () {
+            const jobApplicationId = this.getAttribute('data-id');
+            const status = this.getAttribute('data-status');
+            const token = localStorage.getItem('authToken');
+
+            if (!token) {
+                alert("Authentication token not found. Please log in.");
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to mark the application as ${status}?`)) {
+                return;
+            }
+
+            const jobApplicationCommand = {
+                Status: status == "1" ? 1 : 2 
+            };
+
+            fetch(`/recruiter/job/applicants/${jobApplicationId}`, {
+                method: 'PUT',
+                body: JSON.stringify(jobApplicationCommand),
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(data => { throw new Error(data.message || 'Failed to update status.'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(`Applicant status updated to ${status}!`, 'Success');
+                        setTimeout(() => location.reload(), 1000);
+                    }
+                })
+                .catch(error => {
+                    toastr.error(error.message || 'An error occurred while updating the status.');
+                    console.error('Error:', error);
+                });
+        });
+    });
+</script>

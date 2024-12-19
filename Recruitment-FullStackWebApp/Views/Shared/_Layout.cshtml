@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Citilink FullStackWebApp - Classroom CRUD App</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Recruitment_FullStackWebApp.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header id="header">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+            <div class="container-fluid">
+                <a class="navbar-brand recruiter" asp-area="" asp-controller="Recruiter" asp-action="Index" style="display: none;">Recruitment App</a>
+                <a class="navbar-brand applicant" asp-area="" asp-controller="Applicant" asp-action="Index" style="display: none;">Recruitment App</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1"> 
+                        <li class="nav-item recruiter" style="display: none;">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Recruiter" asp-action="Index">Job List</a>
+                        </li>
+                        <li class="nav-item recruiter" style="display: none;">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Recruiter" asp-action="JobTypeIndex">Job Type</a>
+                        </li>
+                        <li class="nav-item applicant" style="display: none;">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Applicant" asp-action="Index">Job List</a>
+                        </li>
+                        <li class="nav-item applicant" style="display: none;">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Applicant" asp-action="AppliedJobs">Applied Job List</a>
+                        </li>
+                        <li class="nav-item applicant" style="display: none;">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Applicant" asp-action="Profile">Profile</a>
+                        </li>
+                    </ul>
+                    <!-- Add Logout Button and Icon -->
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <button class="btn btn-outline-primary" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <script type="text/javascript">
+        window.onload = function () {
+            var token = localStorage.getItem('authToken');
+            var type = localStorage.getItem('type');
+            var currentPage = window.location.pathname.toLowerCase(); 
+
+            if (!token && currentPage !== '/user'.toLowerCase()) {
+                window.location.href = '/user'; 
+            }
+            
+            if (currentPage == '/user'.toLowerCase()) {
+                document.getElementById('header').style.display = 'none'; 
+            }
+
+            if (type === 'true') {
+                document.querySelectorAll('.recruiter').forEach((e) => {
+                    e.style.display = 'block';
+                });
+            } else {
+                document.querySelectorAll('.applicant').forEach((e) => {
+                    e.style.display = 'block';
+                });
+            }
+
+
+        }
+
+        function logout() {
+            localStorage.clear();
+            document.cookie = "authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            document.cookie = "type=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            window.location.href = '/user';
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,75 @@
+﻿@{
+    ViewData["Title"] = "Job Types";
+}
+@model JobTypeViewModel;
+
+<div class="container mt-4">
+    <h1>Job Types</h1>
+
+    <!-- Display Success/Error Message -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["Message"]
+        </div>
+    }
+
+    <!-- Add New jobType Button -->
+    <a href="/Recruiter/jobtype/Create" class="btn btn-success">Create New Job Type</a>
+
+    <!-- jobType List -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var jobType in Model.JobTypes)
+            {
+                <tr>
+                    <td>@jobType.Name</td>
+                    <td>@jobType.Description</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="editjobTypeType(@jobType.Id)">Edit</button>
+                        <button class="btn btn-danger" onclick="deletejobTypeType(@jobType.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+</div>
+
+<script>
+    // Edit jobType Function
+    function editjobTypeType(jobTypeId) {
+        window.location.href = `/recruiter/jobtype/edit?jobTypeId=${jobTypeId}`;
+    }
+
+    // Delete jobType Function
+    function deletejobTypeType(jobTypeId) {
+        if (confirm("Are you sure you want to delete this job type type?")) {
+            const token = localStorage.getItem('authToken');
+            const email = localStorage.getItem('email');
+
+            fetch(`/recruiter/jobtype/${jobTypeId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload(); // Reload the page to refresh jobType list
+                    }
+                    else {
+                        alert("Failed to delete job type.");
+                    }
+                });
+        }
+    }
+</script>

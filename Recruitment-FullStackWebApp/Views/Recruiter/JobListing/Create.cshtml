@@ -1,0 +1,82 @@
+﻿@model Job
+
+@{
+    ViewData["Title"] = "Create Job";
+}
+
+<div class="container mt-4">
+    <h1>Create a New Job</h1>
+
+    <form asp-action="Create" method="post" id="createForm">
+        <div class="mb-3">
+            <label for="Title" class="form-label">Job Title</label>
+            <input type="text" class="form-control" id="Title" name="Title" required />
+        </div>
+        <div class="mb-3">
+            <label for="Location" class="form-label">Location</label>
+            <input type="text" class="form-control" id="Location" name="Location" required />
+        </div>
+        <div class="mb-3">
+            <label for="Salary" class="form-label">Salary</label>
+            <input type="number" class="form-control" id="Salary" name="Salary" required />
+        </div>
+        <div class="mb-3">
+            <label for="Category" class="form-label">Category</label>
+            <select class="form-control" id="Category" name="Category">
+                <option value="IT">IT</option>
+                <option value="Marketing">Marketing</option>
+                <option value="Finance">Finance</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="Description" class="form-label">Job Description</label>
+            <textarea class="form-control" id="Description" name="Description" rows="4" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-success">Create Job</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+<script type="text/javascript">
+    document.getElementById('createForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var formData = new FormData(document.getElementById('createForm'));
+        const token = localStorage.getItem('authToken');
+        const email = localStorage.getItem("email");
+        if (!email) {
+            alert("Email not found in localStorage.");
+            return;
+        }
+
+        fetch(`/recruiter?email=${email}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { throw new Error(data.message || 'Something went wrong') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Successfully added data! Redirecting...', 'Success');
+                    setTimeout(function () {
+                        window.location.href = '/recruiter';
+                    }, 1000)
+                }
+            })
+            .catch(error => {
+                toastr.error(error.message || 'An error occurred while processing.');
+                console.error('Error:', error);
+            });
+    });
+</script>

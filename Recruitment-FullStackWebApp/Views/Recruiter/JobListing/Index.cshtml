@@ -1,0 +1,105 @@
+﻿@{
+    ViewData["Title"] = "Jobs";
+}
+@model JobViewModel;
+
+<div class="container mt-4">
+    <h1>Your Jobs</h1>
+
+    <!-- Display Success/Error Message -->
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-info">
+            @TempData["Message"]
+        </div>
+    }
+
+    <!-- Search Form -->
+    <form id="searchForm" class="form-inline mb-3" method="get" action="/recruiter">
+        <div class="form-group">
+            <label for="searchTitle" class="mr-2">Title</label>
+            <input type="text" class="form-control" id="searchTitle" name="title" placeholder="Search by Title" />
+        </div>
+        <br />
+        <div class="form-group ml-2">
+            <label for="searchLocation" class="mr-2">Location</label>
+            <input type="text" class="form-control" id="searchLocation" name="location" placeholder="Search by Location" />
+        </div>
+        <br />
+        <button type="submit" class="btn btn-primary ml-2">Search</button>
+        <button type="submit" class="btn btn-danger ml-2" id="clearBtn">Clear</button>
+    </form>
+
+    <!-- Add New Job Button -->
+    <a href="/Recruiter/Create" class="btn btn-success">Create New Job</a>
+
+    <!-- Job List -->
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Location</th>
+                <th>Salary</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var job in Model.Jobs)
+            {
+                <tr>
+                    <td>@job.Title</td>
+                    <td>@job.Location</td>
+                    <td>@job.Salary</td>
+                    <td>
+                        <button class="btn btn-primary" onclick="seeDetail(@job.Id)">See Detail</button>
+                        <button class="btn btn-primary" onclick="editJob(@job.Id)">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteJob(@job.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+   
+</div>
+
+<script>
+    function seeDetail(jobId) {
+        window.location.href = `/recruiter/job/applicants/${jobId}`
+    }
+
+    // Edit Job Function
+    function editJob(jobId) {
+        window.location.href = `/recruiter/Edit?jobId=${jobId}`;
+    }
+
+    // Delete Job Function
+    function deleteJob(jobId) {
+        if (confirm("Are you sure you want to delete this job?")) {
+            const token = localStorage.getItem('authToken');
+            const email = localStorage.getItem('email');
+
+            fetch(`/recruiter/${jobId}?email=${email}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+            })
+                .then(response => {
+                    if (response.ok) {
+                        location.reload(); // Reload the page to refresh job list
+                    }
+                    else {
+                        alert("Failed to delete job.");
+                    }
+                });
+        }
+    }
+
+    document.getElementById('clearBtn').addEventListener('click', function () {
+        document.getElementById('searchTitle').value = '';
+        document.getElementById('searchLocation').value = '';
+        document.getElementById('searchForm').submit();
+    });
+</script>

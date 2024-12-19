@@ -1,0 +1,92 @@
+﻿@model ApplicantViewModel
+
+@{
+    ViewData["Title"] = "Edit Applicant Profile";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form id="editForm" method="post" enctype="multipart/form-data">
+    <input type="hidden" value="@Model.User.Id" id="ProfileId" />
+    <div class="form-group">
+        <label for="fullName">Full Name</label>
+        <input type="text" id="fullName" name="FullName" class="form-control" value="@Model.Profile.FullName" required />
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="Email" class="form-control" value="@Model.User.Email" required />
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="phone">Phone</label>
+        <input type="tel" id="phone" name="Phone" class="form-control" value="@Model.Profile.Phone" required />
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="address">Address</label>
+        <textarea id="address" name="Address" class="form-control" required>@Model.Profile.Address</textarea>
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="resume">Upload New Resume (Optional)</label>
+        <input type="file" id="resume" name="Resume" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model.Profile.ResumeUrl))
+        {
+            <p>Current Resume: <a href="@Model.Profile.ResumeUrl" target="_blank">View Resume</a></p>
+        }
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="skills">Skills</label>
+        <input type="text" id="skills" name="Skills" class="form-control" value="@Model.Profile.Skills" placeholder="E.g., C#, ASP.NET, SQL" />
+    </div>
+    <br />
+    <div class="form-group">
+        <label for="dateOfBirth">Date of Birth</label>
+        <input type="date" id="dateOfBirth" name="DateOfBirth" class="form-control" value="@Model.Profile.DateOfBirth.ToString("yyyy-MM-dd")" required />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Update Profile</button>
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+
+<script type="text/javascript">
+    document.getElementById('editForm').addEventListener('submit', function (event) {
+        event.preventDefault();
+        var formData = new FormData(document.getElementById('editForm'));
+        const token = localStorage.getItem('authToken');
+        const email = localStorage.getItem("email");
+        if (!email) {
+            alert("Email not found in localStorage.");
+            return;
+        }
+
+        const profileId = document.getElementById("ProfileId").value;
+        fetch(`/applicant/profile/edit/${profileId}`, {
+            method: 'PUT',
+            body: formData,
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => { throw new Error(data.message || 'Something went wrong') });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    toastr.success('Successfully update data! Redirecting...', 'Success');
+                }
+            })
+            .catch(error => {
+                toastr.error(error.message || 'An error occurred while processing.');
+                console.error('Error:', error);
+            });
+    });
+</script>
