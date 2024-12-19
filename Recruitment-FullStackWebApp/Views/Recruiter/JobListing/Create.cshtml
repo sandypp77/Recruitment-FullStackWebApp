@@ -21,11 +21,8 @@
             <input type="number" class="form-control" id="Salary" name="Salary" required />
         </div>
         <div class="mb-3">
-            <label for="Category" class="form-label">Category</label>
-            <select class="form-control" id="Category" name="Category">
-                <option value="IT">IT</option>
-                <option value="Marketing">Marketing</option>
-                <option value="Finance">Finance</option>
+            <label for="JobType" class="form-label">Category Job Type</label>
+            <select class="form-control" id="Category" name="JobType">
             </select>
         </div>
         <div class="mb-3">
@@ -43,6 +40,43 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
 
 <script type="text/javascript">
+    function fetchJobCategories() {
+        const token = localStorage.getItem('authToken');
+        const email = localStorage.getItem("email");
+        if (!email) {
+            alert("Email not found in localStorage.");
+            return;
+        }
+
+        fetch('/recruiter/jobtype/all', { 
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.jobTypes && data.jobTypes.length > 0) {
+                    const categorySelect = document.getElementById('Category');
+                    categorySelect.innerHTML = ''; 
+                    data.jobTypes.forEach(type => {
+                        const option = document.createElement('option');
+                        option.value = type.id;
+                        option.textContent = type.name;
+                        categorySelect.appendChild(option);
+                    });
+                } else {
+                    toastr.error('No job categories found.');
+                }
+            })
+            .catch(error => {
+                toastr.error('An error occurred while fetching job categories.');
+                console.error('Error:', error);
+            });
+    }
+
+    fetchJobCategories();
+
     document.getElementById('createForm').addEventListener('submit', function (event) {
         event.preventDefault();
         var formData = new FormData(document.getElementById('createForm'));

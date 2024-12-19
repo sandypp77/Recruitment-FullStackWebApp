@@ -12,7 +12,7 @@ namespace Recruitment_FullStackWebApp.Common.Dtos
         public string Description { get; set; }
         public string Location { get; set; }
         public decimal Salary { get; set; }
-        public string Category { get; set; }
+        public int JobTypeId { get; set; }
     }
 
     public class JobTypeDto
@@ -38,7 +38,8 @@ namespace Recruitment_FullStackWebApp.Common.Dtos
         public string Description { get; set; }
         public string Location { get; set; }
         public decimal Salary { get; set; }
-        public string Category { get; set; }
+        public int JobTypeId { get; set; }
+        public string JobTypeName { get; set; }
         public int? JobApplicationId { get; set; }
         public int? ApplicantId { get; set; }
         public DateTime? ApplicationDate { get; set; }

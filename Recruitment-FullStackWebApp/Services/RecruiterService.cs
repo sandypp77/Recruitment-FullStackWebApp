@@ -25,8 +25,16 @@ namespace Recruitment_FullStackWebApp.Services
 
         public JobDto CreateJob(JobCommand jobCommand, int recruiterId)
         {
-            var job = _mapper.Map<Job>(jobCommand);
-            job.RecruiterId = recruiterId;
+            var jobType = _jobRepository.GetJobTypeById(jobCommand.JobType);
+            var job = new Job()
+            {
+                Title = jobCommand.Title,
+                Location = jobCommand.Location,
+                Description = jobCommand.Description,
+                Salary = jobCommand.Salary,
+                RecruiterId = recruiterId,
+                JobTypeId = jobType.Id,
+            };
 
             var jobId = _jobRepository.Add(job);
             job.Id = jobId;
@@ -41,11 +49,17 @@ namespace Recruitment_FullStackWebApp.Services
             {
                 return null;
             }
+            var jobType = _jobRepository.GetJobTypeById(jobCommand.JobType);
 
-            var job = _mapper.Map(jobCommand, existingJob);
+            existingJob.Title = jobCommand.Title;
+            existingJob.Location = jobCommand.Location;
+            existingJob.Description = jobCommand.Description;
+            existingJob.Salary = jobCommand.Salary;
+            existingJob.RecruiterId = recruiterId;
+            existingJob.JobTypeId = jobType.Id;
 
-            _jobRepository.Update(job);
-            return _mapper.Map<JobDto>(job);
+            _jobRepository.Update(existingJob);
+            return _mapper.Map<JobDto>(existingJob);
         }
 
         public bool DeleteJob(int jobId, int recruiterId)

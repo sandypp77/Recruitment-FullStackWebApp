@@ -100,8 +100,8 @@ namespace Recruitment_FullStackWebApp.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             const string sql = @"
-            INSERT INTO Jobs (Title, Description, Location, Salary, Category, RecruiterId)
-            VALUES (@Title, @Description, @Location, @Salary, @Category, @RecruiterId);
+            INSERT INTO Jobs (Title, Description, Location, Salary, JobTypeId, RecruiterId)
+            VALUES (@Title, @Description, @Location, @Salary, @JobTypeId, @RecruiterId);
             SELECT CAST(SCOPE_IDENTITY() as int)";
             return connection.ExecuteScalar<int>(sql, job);
         }
@@ -115,7 +115,7 @@ namespace Recruitment_FullStackWebApp.Repositories
                 Description = @Description,
                 Location = @Location,
                 Salary = @Salary,
-                Category = @Category
+                JobTypeId = @JobTypeId
             WHERE Id = @Id AND RecruiterId = @RecruiterId";
             connection.Execute(sql, job);
         }
@@ -212,7 +212,8 @@ namespace Recruitment_FullStackWebApp.Repositories
                     j.Description,
                     j.Location,
                     j.Salary,
-                    j.Category,
+                    j.JobTypeId,
+                    jt.Name AS JobTypeName, 
                     ja.Id AS JobApplicationId,
                     ja.ApplicantId,
                     ja.ApplicationDate,
@@ -227,6 +228,8 @@ namespace Recruitment_FullStackWebApp.Repositories
                     Jobs j
                 LEFT JOIN 
                     JobApplications ja ON j.Id = ja.JobId
+                LEFT JOIN 
+                    JobTypes jt ON j.JobTypeId = jt.Id
                 LEFT JOIN 
                     Applicants a ON ja.ApplicantId = a.ApplicantId
                 WHERE 
@@ -265,8 +268,6 @@ namespace Recruitment_FullStackWebApp.Repositories
                 PageNumber = pageNumber,
                 PageSize = pageSize
             };
-
-
         }
 
         public PaginationJobAppliedDto GetJobApplicants(int jobId, int pageNumber, int pageSize)
@@ -285,7 +286,7 @@ namespace Recruitment_FullStackWebApp.Repositories
                     j.Description,
                     j.Location,
                     j.Salary,
-                    j.Category,
+                    j.JobTypeId,
                     ja.Id AS JobApplicationId,
                     ja.ApplicantId,
                     ja.ApplicationDate,

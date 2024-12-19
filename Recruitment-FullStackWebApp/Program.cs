@@ -118,6 +118,8 @@ app.UseStatusCodePages(async context =>
     await Task.CompletedTask;
 });
 
+app.MapGet("/", () => Results.Redirect("/user"));
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

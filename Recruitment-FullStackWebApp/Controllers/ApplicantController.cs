@@ -121,7 +121,7 @@ namespace Recruitment_FullStackWebApp.Controllers
             try
             {
                 var applicantId = await _applicantService.SaveApplicantAsync(applicantProfileCommand, user, resume);
-                return Ok(new { applicantId });
+                return Ok(new { success = true, id = applicantId });
             }
             catch (Exception ex)
             {
@@ -162,7 +162,7 @@ namespace Recruitment_FullStackWebApp.Controllers
             try
             {
                 var updatedApplicant = await _applicantService.UpdateApplicantAsync(id, applicantProfileCommand, user, resume);
-                return Ok(new { updatedApplicant });
+                return Ok(new { success = true, updatedApplicant });
             }
             catch (Exception ex)
             {

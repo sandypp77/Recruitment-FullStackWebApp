@@ -75,7 +75,7 @@ namespace Recruitment_FullStackWebApp.Controllers
                 Description = job.Description,
                 Location = job.Location,
                 Salary = job.Salary,
-                Category = job.Category,
+                JobType = job.JobTypeId
             };
 
             return View("~/Views/Recruiter/JobListing/Edit.cshtml", viewModel);
@@ -246,13 +246,13 @@ namespace Recruitment_FullStackWebApp.Controllers
         [HttpGet("jobtype/all")]
         public IActionResult GetAllJobTypes()
         {
-            var jobTypes = _recruiterService.GetAllJobTypes();
-            if (jobTypes == null || !jobTypes.Any())
+            var jobTypeList = _recruiterService.GetAllJobTypes();
+            if (jobTypeList == null || !jobTypeList.Any())
             {
                 return NotFound(new { message = "No job types found." });
             }
 
-            return Ok(jobTypes);
+            return Ok(new { success = true, jobTypes = jobTypeList });
         }
 
         /*

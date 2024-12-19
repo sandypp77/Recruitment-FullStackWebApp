@@ -21,6 +21,6 @@ namespace Recruitment_FullStackWebApp.Models
         public string Description { get; set; }
         public string Location { get; set; }
         public decimal Salary { get; set; }
-        public string Category { get; set; }
+        public int JobType { get; set; }
     }
 }

@@ -25,8 +25,10 @@ namespace Recruitment_FullStackWebApp.Models
         public decimal Salary { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        public string Category { get; set; }
+        public int JobTypeId { get; set; }
+
+        [ForeignKey("JobTypeId")]
+        public JobType JobType { get; set; }
 
         [Required]
         public int RecruiterId { get; set; }
