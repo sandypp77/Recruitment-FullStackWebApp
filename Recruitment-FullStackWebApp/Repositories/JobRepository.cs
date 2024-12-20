@@ -8,17 +8,32 @@ using System;
 
 namespace Recruitment_FullStackWebApp.Repositories
 {
+    /// <summary>
+    /// Repository for managing job-related operations, including CRUD operations and job applications.
+    /// </summary>
     public class JobRepository : IJobRepository
     {
         private readonly string _connectionString;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="JobRepository"/> class.
+        /// </summary>
+        /// <param name="connectionString">The database connection string.</param>
+        /// <param name="mapper">The object mapper for DTO conversions.</param>
         public JobRepository(string connectionString, IMapper mapper)
         {
             _connectionString = connectionString;
             _mapper = mapper;
         }
 
+        /// <summary>
+        /// Retrieves a list of jobs filtered by recruiter, title, and location.
+        /// </summary>
+        /// <param name="recruiterId">The ID of the recruiter.</param>
+        /// <param name="title">The title filter for the job.</param>
+        /// <param name="location">The location filter for the job.</param>
+        /// <returns>A list of <see cref="Job"/> objects.</returns>
         public IList<Job> GetJobsByRecruiter(int recruiterId, string title, string location)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -33,6 +48,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             return (IList<Job>)connection.Query<Job>(sql, new { RecruiterId = recruiterId, Title = $"%{title}%", Location = $"%{location}%" });
         }
 
+        /// <summary>
+        /// Retrieves all jobs from the database.
+        /// </summary>
+        /// <returns>A list of all <see cref="Job"/> objects.</returns>
         public IList<Job> GetAllJobs()
         {
             using var connection = new SqlConnection(_connectionString);
@@ -40,6 +59,14 @@ namespace Recruitment_FullStackWebApp.Repositories
             return (IList<Job>)connection.Query<Job>(sql, new { });
         }
 
+        /// <summary>
+        /// Retrieves paginated jobs filtered by title and location.
+        /// </summary>
+        /// <param name="title">The title filter for jobs.</param>
+        /// <param name="location">The location filter for jobs.</param>
+        /// <param name="pageNumber">The page number for pagination.</param>
+        /// <param name="pageSize">The number of items per page.</param>
+        /// <returns>A <see cref="PaginationJobDto"/> containing the paginated jobs.</returns>
         public PaginationJobDto GetAllJobsPagination(string title, string location, int pageNumber, int pageSize)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -88,7 +115,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             };
         }
 
-
+        /// <summary>
+        /// Retrieves a job by its unique identifier.
+        /// </summary>
+        /// <param name="jobId">The unique identifier of the job.</param>
+        /// <returns>The <see cref="Job"/> object if found; otherwise, null.</returns>
         public Job GetById(int jobId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -96,6 +127,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             return connection.QueryFirstOrDefault<Job>(sql, new { JobId = jobId });
         }
 
+        /// <summary>
+        /// Adds a new job to the database.
+        /// </summary>
+        /// <param name="job">The job entity to add.</param>
+        /// <returns>The unique identifier of the newly created job.</returns>
         public int Add(Job job)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -106,6 +142,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             return connection.ExecuteScalar<int>(sql, job);
         }
 
+        /// <summary>
+        /// Updates an existing job in the database.
+        /// </summary>
+        /// <param name="job">The job entity with updated values.</param>
         public void Update(Job job)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -120,6 +160,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             connection.Execute(sql, job);
         }
 
+        /// <summary>
+        /// Deletes a job from the database by its ID.
+        /// </summary>
+        /// <param name="jobId">The ID of the job to delete.</param>
         public void Delete(int jobId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -127,6 +171,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             connection.Execute(sql, new { JobId = jobId });
         }
 
+        /// <summary>
+        /// Retrieves all job types from the database, ordered by their creation date.
+        /// </summary>
+        /// <returns>A list of all job types.</returns>
         public IList<JobType> GetAllJobTypes()
         {
             using var connection = new SqlConnection(_connectionString);
@@ -134,6 +182,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             return (IList<JobType>)connection.Query<JobType>(sql, new { });
         }
 
+        /// <summary>
+        /// Retrieves a job type by its unique ID.
+        /// </summary>
+        /// <param name="jobTypeId">The ID of the job type to retrieve.</param>
+        /// <returns>The job type entity, or null if not found.</returns>
         public JobType GetJobTypeById(int jobTypeId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -141,6 +194,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             return connection.QueryFirstOrDefault<JobType>(sql, new { JobTypeId = jobTypeId });
         }
 
+        /// <summary>
+        /// Adds a new job type to the database.
+        /// </summary>
+        /// <param name="jobType">The job type entity to add.</param>
+        /// <returns>The unique identifier of the newly created job type.</returns>
         public int AddJobType(JobType jobType)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -151,6 +209,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             return connection.ExecuteScalar<int>(sql, jobType);
         }
 
+        /// <summary>
+        /// Updates an existing job type in the database.
+        /// </summary>
+        /// <param name="jobType">The job type entity with updated values.</param>
         public void UpdateJobType(JobType jobType)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -162,6 +224,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             connection.Execute(sql, jobType);
         }
 
+        /// <summary>
+        /// Deletes a job type from the database by its ID.
+        /// </summary>
+        /// <param name="jobTypeId">The ID of the job type to delete.</param>
         public void DeleteJobType(int jobTypeId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -169,6 +235,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             connection.Execute(sql, new { JobTypeId = jobTypeId });
         }
 
+        /// <summary>
+        /// Adds a job application to the database.
+        /// </summary>
+        /// <param name="jobApplication">The job application entity to add.</param>
+        /// <returns>The unique identifier of the newly created job application.</returns>
         public int ApplyForJob(JobApplication jobApplication)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -179,6 +250,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             return connection.ExecuteScalar<int>(sql, jobApplication);
         }
 
+        /// <summary>
+        /// Retrieves all job applications made by a specific applicant.
+        /// </summary>
+        /// <param name="applicantId">The ID of the applicant.</param>
+        /// <returns>A list of job applications made by the applicant.</returns>
         public IList<JobApplication> GetApplicationsByApplicant(int applicantId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -186,6 +262,15 @@ namespace Recruitment_FullStackWebApp.Repositories
             return (IList<JobApplication>)connection.QueryFirstOrDefault<JobApplication>(sql, new { ApplicantId = applicantId });
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of jobs applied for by an applicant, with filtering by title and location.
+        /// </summary>
+        /// <param name="title">The job title to filter by (optional).</param>
+        /// <param name="location">The job location to filter by (optional).</param>
+        /// <param name="applicantId">The ID of the applicant.</param>
+        /// <param name="pageNumber">The current page number.</param>
+        /// <param name="pageSize">The number of records per page.</param>
+        /// <returns>A paginated DTO containing jobs applied for by the applicant.</returns>
         public PaginationJobAppliedDto GetJobsAppliedByApplicant(string title, string location, int applicantId, int pageNumber, int pageSize)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -270,6 +355,13 @@ namespace Recruitment_FullStackWebApp.Repositories
             };
         }
 
+        /// <summary>
+        /// Retrieves a paginated list of applicants for a specific job.
+        /// </summary>
+        /// <param name="jobId">The ID of the job.</param>
+        /// <param name="pageNumber">The current page number.</param>
+        /// <param name="pageSize">The number of records per page.</param>
+        /// <returns>A paginated DTO containing job applicants.</returns>
         public PaginationJobAppliedDto GetJobApplicants(int jobId, int pageNumber, int pageSize)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -331,6 +423,10 @@ namespace Recruitment_FullStackWebApp.Repositories
             };
         }
 
+        /// <summary>
+        /// Updates the status of a job application in the database.
+        /// </summary>
+        /// <param name="jobApplication">The job application entity with the updated status.</param>
         public void UpdateJobApplication(JobApplication jobApplication)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -341,6 +437,11 @@ namespace Recruitment_FullStackWebApp.Repositories
             connection.Execute(sql, jobApplication);
         }
 
+        /// <summary>
+        /// Retrieves a job application by its unique ID.
+        /// </summary>
+        /// <param name="jobApplicationId">The ID of the job application to retrieve.</param>
+        /// <returns>The job application entity, or null if not found.</returns>
         public JobApplication GetJobApplicationById(int jobApplicationId)
         {
             using var connection = new SqlConnection(_connectionString);
